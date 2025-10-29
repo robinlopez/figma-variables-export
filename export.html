@@ -1,0 +1,140 @@
+<style>
+  :root {
+    --spacing: 0.8rem;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    background-color: var(--figma-color-bg);
+    color: var(--figma-color-text);
+    margin: 0;
+    padding: var(--spacing);
+  }
+
+  html,
+  body,
+  main {
+    height: 100%;
+  }
+
+  main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing);
+  }
+
+  button {
+    appearance: none;
+    border-radius: 4px;
+    padding: var(--spacing);
+  }
+
+  textarea {
+    background-color: var(--figma-color-bg-secondary);
+    border: 2px solid var(--figma-color-border);
+    color: var(--figma-color-text-secondary);
+    flex: 1;
+    font-family: Andale Mono, monospace;
+    font-size: 0.9rem;
+    overflow: auto;
+    padding: var(--spacing);
+    white-space: pre;
+  }
+  
+  textarea:focus {
+    border-color: var(--figma-color-border-selected);
+    outline: none;
+  }
+
+  button,
+  textarea {
+    display: block;
+    width: 100%;
+  }
+
+  button {
+    background-color: var(--figma-color-bg-brand);
+    border: none;
+    color: var(--figma-color-text-onbrand);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+      Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+      sans-serif;
+    font-weight: bold;
+  }
+
+  #export {
+    background-color: var(--figma-color-bg-component);
+  }
+</style>
+<main>
+  <button id="export" type="button">Export Variables</button>
+  <textarea
+    placeholder="Exported variables will render here..."
+    readonly
+  ></textarea>
+</main>
+<script>
+  function needsQuotes(key) {
+    return /^[0-9]/.test(key) || /[^a-zA-Z0-9_$]/.test(key);
+  }
+
+  function formatValue(value, indent = 0) {
+    const spaces = '    '.repeat(indent);
+    
+    if (typeof value === 'string') {
+      return `'${value}'`;
+    }
+    
+    if (typeof value === 'number' || typeof value === 'boolean') {
+      return String(value);
+    }
+    
+    if (Array.isArray(value)) {
+      const items = value.map(v => formatValue(v, indent + 1)).join(',\n' + spaces + '    ');
+      return `[\n${spaces}    ${items}\n${spaces}]`;
+    }
+    
+    if (typeof value === 'object' && value !== null) {
+      const entries = Object.entries(value);
+      if (entries.length === 0) return '{}';
+      
+      const formatted = entries.map(([k, v]) => {
+        const key = needsQuotes(k) ? `'${k}'` : k;
+        const val = formatValue(v, indent + 1);
+        return `${spaces}    ${key}: ${val}`;
+      }).join(',\n');
+      
+      return `{\n${formatted}\n${spaces}}`;
+    }
+    
+    return String(value);
+  }
+
+  window.onmessage = ({ data: { pluginMessage } }) => {
+    if (pluginMessage.type === "EXPORT_RESULT") {
+      document.querySelector("textarea").innerHTML = pluginMessage.files
+        .map(({ fileName, body }) => {
+          const collectionName = fileName.replace('.ts', '');
+          const exportName = `myTheme${collectionName.charAt(0).toUpperCase() + collectionName.slice(1)}`;
+          
+          const formattedBody = formatValue(body, 0);
+          
+          const tsContent = `/**
+ * ${collectionName.charAt(0).toUpperCase() + collectionName.slice(1)} tokens used in the theme.
+ */
+
+export const ${exportName} = ${formattedBody};`;
+          
+          return `/* ${fileName} */\n\n${tsContent}`;
+        })
+        .join("\n\n\n");
+    }
+  };
+  
+  document.getElementById("export").addEventListener("click", () => {
+    parent.postMessage({ pluginMessage: { type: "EXPORT" } }, "*");
+  });
+</script>
