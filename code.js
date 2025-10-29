@@ -190,14 +190,15 @@ function filterModesByOptions(modes, modeSelection) {
 }
 
 async function processCollectionCustom({ name, modes, variableIds }, options = {}) {
-  const { modeSelection = 'all' } = options;
+  const { modeSelection = 'all', excludeString = false, collectionAliases = {}, opacityFormat = 'rgba' } = options;
 
   const filteredModes = filterModesByOptions(modes, modeSelection);
 
   const file = {
     fileName: `${toCamelCase(name)}.ts`,
     body: {},
-    modes: filteredModes.map(m => ({ modeId: m.modeId, name: m.name }))
+    modes: filteredModes.map(m => ({ modeId: m.modeId, name: m.name })),
+    collectionName: name
   };
 
   const variablesByMode = {};
@@ -210,7 +211,11 @@ async function processCollectionCustom({ name, modes, variableIds }, options = {
       const { name: varName, resolvedType, valuesByMode } = variable;
       const value = valuesByMode[mode.modeId];
 
-      if (value !== undefined && ["COLOR", "FLOAT", "STRING"].includes(resolvedType)) {
+      const allowedTypes = excludeString
+          ? ["COLOR", "FLOAT"]
+          : ["COLOR", "FLOAT", "STRING"];
+
+      if (value !== undefined && allowedTypes.includes(resolvedType)) {
         const pathParts = varName.split("/").map(part => toCamelCase(part));
         let obj = variablesByMode[mode.modeId];
 
@@ -226,11 +231,18 @@ async function processCollectionCustom({ name, modes, variableIds }, options = {
 
         if (value.type === "VARIABLE_ALIAS") {
           const referencedVar = await figma.variables.getVariableByIdAsync(value.id);
+
+          const referencedCollection = await figma.variables.getVariableCollectionByIdAsync(
+              referencedVar.variableCollectionId
+          );
+
+          let collectionName = collectionAliases[referencedCollection.name] || toCamelCase(referencedCollection.name);
+
           const aliasPath = referencedVar.name.split("/").map(part => toCamelCase(part)).join(".");
-          obj[lastKey] = `{${aliasPath}}`;
+          obj[lastKey] = `{${collectionName}.${aliasPath}}`;
         } else {
           if (resolvedType === "COLOR") {
-            obj[lastKey] = rgbToHex(value);
+            obj[lastKey] = rgbToHex(value, opacityFormat); // Passer l'option ici
           } else if (resolvedType === "FLOAT") {
             obj[lastKey] = formatNumberValue(value, varName, pathParts);
           } else {
@@ -365,12 +377,25 @@ if (figma.command === "import") {
   });
 }
 
-function rgbToHex({ r, g, b, a }) {
+function rgbToHex({ r, g, b, a }, opacityFormat = 'rgba') {
   if (a !== 1) {
-    return `rgba(${[r, g, b]
-        .map((n) => Math.round(n * 255))
-        .join(", ")}, ${a.toFixed(4)})`;
+    if (opacityFormat === 'hex') {
+      // Format hexadécimal avec opacité
+      const toHex = (value) => {
+        const hex = Math.round(value * 255).toString(16);
+        return hex.length === 1 ? "0" + hex : hex;
+      };
+
+      const alphaHex = Math.round(a * 255).toString(16).padStart(2, '0');
+      const hex = [toHex(r), toHex(g), toHex(b)].join("");
+      return `#${hex}${alphaHex}`;
+    } else {
+      // Format RGBA nettoyé (sans zéros inutiles)
+      const cleanAlpha = parseFloat(a.toFixed(4));
+      return `rgba(${[r, g, b].map((n) => Math.round(n * 255)).join(", ")}, ${cleanAlpha})`;
+    }
   }
+
   const toHex = (value) => {
     const hex = Math.round(value * 255).toString(16);
     return hex.length === 1 ? "0" + hex : hex;

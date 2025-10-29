@@ -145,6 +145,10 @@
     background-color: var(--card-bg);
     transition: background-color 0.2s ease, border-color 0.2s ease;
   }
+
+  .sidebar-header-title {
+    font-weight: bolder;
+  }
   
   .sidebar-header svg {
     width: 20px;
@@ -153,12 +157,12 @@
   }
 
   .sidebar-content {
-    padding: var(--spacing-md) var(--spacing-lg);
+    padding: var(--spacing-sm) var(--spacing-sm);
     flex: 1;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-lg);
+    gap: var(--spacing-md);
     scrollbar-width: thin;
     scrollbar-color: var(--border-color) transparent;
   }
@@ -189,8 +193,9 @@
   }
 
   .option-group-title {
-    padding: 16px 8px;
+    padding: 8px;
     font-weight: bold;
+    font-size: 16px;
   }
 
   .option-group label {
@@ -611,6 +616,42 @@
   ::-webkit-scrollbar-corner {
     background: transparent;
   }
+
+  /* Input text personnalisé */
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .input-group label {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+  }
+
+  .input-group input[type="text"] {
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+    transition: all 0.2s ease;
+  }
+
+  .input-group input[type="text"]:focus {
+    outline: none;
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 2px var(--primary-200);
+  }
+
+  .input-hint {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    margin-top: 0.25rem;
+  }
 </style>
 
 <link href='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap' rel='stylesheet'>
@@ -619,10 +660,91 @@
   <div class="sidebar">
     <div class="sidebar-header">
       <svg xmlns="http://www.w3.org/2000/svg" height="28" width="28" viewBox="0 0 512 512"><title>512 coins</title><g fill="#8C6EFF" class="nc-icon-wrapper"><path d="M512 80c0 18-14.3 34.6-38.4 48c-29.1 16.1-72.5 27.5-122.3 30.9c-3.7-1.8-7.4-3.5-11.3-5C300.6 137.4 248.2 128 192 128c-8.3 0-16.4 .2-24.5 .6l-1.1-.6C142.3 114.6 128 98 128 80c0-44.2 86-80 192-80S512 35.8 512 80zM160.7 161.1c10.2-.7 20.7-1.1 31.3-1.1c62.2 0 117.4 12.3 152.5 31.4C369.3 204.9 384 221.7 384 240c0 4-.7 7.9-2.1 11.7c-4.6 13.2-17 25.3-35 35.5c0 0 0 0 0 0c-.1 .1-.3 .1-.4 .2l0 0 0 0c-.3 .2-.6 .3-.9 .5c-35 19.4-90.8 32-153.6 32c-59.6 0-112.9-11.3-148.2-29.1c-1.9-.9-3.7-1.9-5.5-2.9C14.3 274.6 0 258 0 240c0-34.8 53.4-64.5 128-75.4c10.5-1.5 21.4-2.7 32.7-3.5zM416 240c0-21.9-10.6-39.9-24.1-53.4c28.3-4.4 54.2-11.4 76.2-20.5c16.3-6.8 31.5-15.2 43.9-25.5V176c0 19.3-16.5 37.1-43.8 50.9c-14.6 7.4-32.4 13.7-52.4 18.5c.1-1.8 .2-3.5 .2-5.3zm-32 96c0 18-14.3 34.6-38.4 48c-1.8 1-3.6 1.9-5.5 2.9C304.9 404.7 251.6 416 192 416c-62.8 0-118.6-12.6-153.6-32C14.3 370.6 0 354 0 336V300.6c12.5 10.3 27.6 18.7 43.9 25.5C83.4 342.6 135.8 352 192 352s108.6-9.4 148.1-25.9c7.8-3.2 15.3-6.9 22.4-10.9c6.1-3.4 11.8-7.2 17.2-11.2c1.5-1.1 2.9-2.3 4.3-3.4V304v5.7V336zm32 0V304 278.1c19-4.2 36.5-9.5 52.1-16c16.3-6.8 31.5-15.2 43.9-25.5V272c0 10.5-5 21-14.9 30.9c-16.3 16.3-45 29.7-81.3 38.4c.1-1.7 .2-3.5 .2-5.3zM192 448c56.2 0 108.6-9.4 148.1-25.9c16.3-6.8 31.5-15.2 43.9-25.5V432c0 44.2-86 80-192 80S0 476.2 0 432V396.6c12.5 10.3 27.6 18.7 43.9 25.5C83.4 438.6 135.8 448 192 448z"></path></g></svg>
-      <span>Export Settings</span>
+      <span class="sidebar-header-title">Export Settings</span>
     </div>
-    
+
     <div class="sidebar-content">
+      <div class="options-section">
+        <div class="option-group">
+          <div class="input-group">
+            <div class="option-group-title">Export Prefix</div>
+            <input
+                    type="text"
+                    id="exportPrefix"
+                    placeholder="myTheme"
+                    value="myTheme"
+            />
+            <span class="input-hint">Example: "myTheme" → export const appPrimitives</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="options-section">
+        <div class="option-group">
+          <div class="input-group">
+            <div class="option-group-title">Collection Aliases</div>
+            <input
+                    type="text"
+                    id="collectionAliases"
+                    placeholder='{"Primitives": "primitive", "Semantics": "semantic"}'
+                    value='{"Primitives": "primitive"}'
+            />
+            <span class="input-hint">Optional: Map collection names for aliases (JSON format)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="options-section">
+        <div class="option-group">
+          <div class="input-group">
+            <div class="option-group-title">Documentation URL</div>
+            <input
+                    type="text"
+                    id="docUrl"
+                    placeholder="https://www.figma.com/design/..."
+                    value=""
+            />
+            <span class="input-hint">Optional: Add a Figma documentation link for the generated files</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="options-section">
+        <div class="option-group">
+          <div class="option-group-title">Opacity Format</div>
+          <div class="radio-group">
+            <label class="radio-option">
+              <input type="radio" id="opacityRgba" name="opacityFormat" value="rgba" checked>
+              <span class="radio-control"></span>
+              <span class="radio-label">RGBA format (rgba(0, 0, 0, 0.2))</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" id="opacityHex" name="opacityFormat" value="hex">
+              <span class="radio-control"></span>
+              <span class="radio-label">Hex with opacity (#00000033)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="options-section">
+        <div class="option-group">
+          <div class="option-group-title">Variable Types</div>
+          <div class="radio-group">
+            <label class="radio-option">
+              <input type="radio" id="includeString" name="stringSelection" value="include" checked>
+              <span class="radio-control"></span>
+              <span class="radio-label">Include "Boolean" variables</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" id="excludeString" name="stringSelection" value="exclude">
+              <span class="radio-control"></span>
+              <span class="radio-label">Exclude "Boolean" variables</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
       <div class="options-section">
         <div class="option-group">
           <div class="option-group-title">Mode Selection</div>
@@ -649,19 +771,19 @@
             </label>
           </div>
         </div>
+      </div>
 
-        <div class="button-group">
-          <button id="export" type="button">
-            <svg xmlns="http://www.w3.org/2000/svg" height="20" width="22" viewBox="0 0 576 512"><title>576 wand magic sparkles</title><g fill="#ffffff" class="nc-icon-wrapper"><path d="M234.7 42.7L197 56.8c-3 1.1-5 4-5 7.2s2 6.1 5 7.2l37.7 14.1L248.8 123c1.1 3 4 5 7.2 5s6.1-2 7.2-5l14.1-37.7L315 71.2c3-1.1 5-4 5-7.2s-2-6.1-5-7.2L277.3 42.7 263.2 5c-1.1-3-4-5-7.2-5s-6.1 2-7.2 5L234.7 42.7zM46.1 395.4c-18.7 18.7-18.7 49.1 0 67.9l34.6 34.6c18.7 18.7 49.1 18.7 67.9 0L529.9 116.5c18.7-18.7 18.7-49.1 0-67.9L495.3 14.1c-18.7-18.7-49.1-18.7-67.9 0L46.1 395.4zM484.6 82.6l-105 105-23.3-23.3 105-105 23.3 23.3zM7.5 117.2C3 118.9 0 123.2 0 128s3 9.1 7.5 10.8L64 160l21.2 56.5c1.7 4.5 6 7.5 10.8 7.5s9.1-3 10.8-7.5L128 160l56.5-21.2c4.5-1.7 7.5-6 7.5-10.8s-3-9.1-7.5-10.8L128 96 106.8 39.5C105.1 35 100.8 32 96 32s-9.1 3-10.8 7.5L64 96 7.5 117.2zm352 256c-4.5 1.7-7.5 6-7.5 10.8s3 9.1 7.5 10.8L416 416l21.2 56.5c1.7 4.5 6 7.5 10.8 7.5s9.1-3 10.8-7.5L480 416l56.5-21.2c4.5-1.7 7.5-6 7.5-10.8s-3-9.1-7.5-10.8L480 352l-21.2-56.5c-1.7-4.5-6-7.5-10.8-7.5s-9.1 3-10.8 7.5L416 352l-56.5 21.2z"></path></g></svg>
-            Generate
-          </button>
-          <button id="downloadAll" type="button" disabled>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15M7 10L12 15M12 15L17 10M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Download All
-          </button>
-        </div>
+      <div class="button-group">
+        <button id="export" type="button">
+          <svg xmlns="http://www.w3.org/2000/svg" height="20" width="22" viewBox="0 0 576 512"><title>576 wand magic sparkles</title><g fill="#ffffff" class="nc-icon-wrapper"><path d="M234.7 42.7L197 56.8c-3 1.1-5 4-5 7.2s2 6.1 5 7.2l37.7 14.1L248.8 123c1.1 3 4 5 7.2 5s6.1-2 7.2-5l14.1-37.7L315 71.2c3-1.1 5-4 5-7.2s-2-6.1-5-7.2L277.3 42.7 263.2 5c-1.1-3-4-5-7.2-5s-6.1 2-7.2 5L234.7 42.7zM46.1 395.4c-18.7 18.7-18.7 49.1 0 67.9l34.6 34.6c18.7 18.7 49.1 18.7 67.9 0L529.9 116.5c18.7-18.7 18.7-49.1 0-67.9L495.3 14.1c-18.7-18.7-49.1-18.7-67.9 0L46.1 395.4zM484.6 82.6l-105 105-23.3-23.3 105-105 23.3 23.3zM7.5 117.2C3 118.9 0 123.2 0 128s3 9.1 7.5 10.8L64 160l21.2 56.5c1.7 4.5 6 7.5 10.8 7.5s9.1-3 10.8-7.5L128 160l56.5-21.2c4.5-1.7 7.5-6 7.5-10.8s-3-9.1-7.5-10.8L128 96 106.8 39.5C105.1 35 100.8 32 96 32s-9.1 3-10.8 7.5L64 96 7.5 117.2zm352 256c-4.5 1.7-7.5 6-7.5 10.8s3 9.1 7.5 10.8L416 416l21.2 56.5c1.7 4.5 6 7.5 10.8 7.5s9.1-3 10.8-7.5L480 416l56.5-21.2c4.5-1.7 7.5-6 7.5-10.8s-3-9.1-7.5-10.8L480 352l-21.2-56.5c-1.7-4.5-6-7.5-10.8-7.5s-9.1 3-10.8 7.5L416 352l-56.5 21.2z"></path></g></svg>
+          Generate
+        </button>
+        <button id="downloadAll" type="button" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15M7 10L12 15M12 15L17 10M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Download All
+        </button>
       </div>
 
       <div class="files-section">
@@ -726,17 +848,39 @@
     return String(value);
   }
 
-  function generateTsContent(fileName, body) {
-    const collectionName = fileName.replace('.ts', '');
-    const exportName = `myTheme${collectionName.charAt(0).toUpperCase() + collectionName.slice(1)}`;
+  function generateFileComment(collectionName, docUrl) {
+    const capitalizedName = collectionName.charAt(0).toUpperCase() + collectionName.slice(1);
+
+    let comment = `/**\n * ${capitalizedName} tokens used in the theme.\n *\n`;
+
+    if (docUrl && docUrl.trim()) {
+      comment += ` * Token documentation : ${docUrl.trim()}\n`;
+    }
+
+    comment += ' */';
+
+    return comment;
+  }
+
+  function generateTsContent(fileName, body, collectionName, prefix = 'myTheme', docUrl = '') {
+    const collectionNameCamel = fileName.replace('.ts', '');
+    const exportName = `${prefix}${collectionNameCamel.charAt(0).toUpperCase() + collectionNameCamel.slice(1)}`;
 
     const formattedBody = formatValue(body, 0);
 
-    return `/**
- * ${collectionName.charAt(0).toUpperCase() + collectionName.slice(1)} tokens used in the theme.
- */
+    const fileComment = generateFileComment(collectionName, docUrl);
 
-export const ${exportName} = ${formattedBody};`;
+    return `${fileComment}\n\nexport const ${exportName} = ${formattedBody};`;
+  }
+
+  function getExportPrefix() {
+    const input = document.getElementById('exportPrefix');
+    return input.value.trim() || 'myTheme';
+  }
+
+  function getDocUrl() {
+    const input = document.getElementById('docUrl');
+    return input.value.trim();
   }
 
   function downloadFile(fileName, content) {
@@ -772,17 +916,21 @@ export const ${exportName} = ${formattedBody};`;
 
   window.downloadSingleFile = function(index) {
     const file = exportedFiles[index];
-    const content = generateTsContent(file.fileName, file.body);
+    const prefix = getExportPrefix();
+    const docUrl = getDocUrl();
+    const content = generateTsContent(file.fileName, file.body, file.collectionName, prefix, docUrl);
     downloadFile(file.fileName, content);
   };
 
   window.onmessage = ({ data: { pluginMessage } }) => {
     if (pluginMessage.type === "EXPORT_RESULT") {
       exportedFiles = pluginMessage.files;
+      const prefix = getExportPrefix();
+      const docUrl = getDocUrl();
 
       document.getElementById('preview').value = exportedFiles
-              .map(({ fileName, body }) => {
-                const tsContent = generateTsContent(fileName, body);
+              .map(({ fileName, body, collectionName }) => {
+                const tsContent = generateTsContent(fileName, body, collectionName, prefix, docUrl);
                 return `/* ${fileName} */\n\n${tsContent}`;
               })
               .join("\n\n\n");
@@ -792,14 +940,34 @@ export const ${exportName} = ${formattedBody};`;
     }
   };
 
+  function getCollectionAliases() {
+    const input = document.getElementById('collectionAliases');
+    const value = input.value.trim();
+
+    if (!value) return {};
+
+    try {
+      return JSON.parse(value);
+    } catch (e) {
+      console.error('Invalid JSON for collection aliases:', e);
+      return {};
+    }
+  }
+
   document.getElementById('export').addEventListener('click', () => {
     const modeSelection = document.querySelector('input[name="modeSelection"]:checked').value;
+    const stringSelection = document.querySelector('input[name="stringSelection"]:checked').value;
+    const opacityFormat = document.querySelector('input[name="opacityFormat"]:checked').value;
+    const collectionAliases = getCollectionAliases();
 
     parent.postMessage({
       pluginMessage: {
         type: "EXPORT",
         options: {
-          modeSelection
+          modeSelection,
+          excludeString: stringSelection === 'exclude',
+          collectionAliases: collectionAliases,
+          opacityFormat: opacityFormat
         }
       }
     }, "*");
@@ -808,8 +976,11 @@ export const ${exportName} = ${formattedBody};`;
   document.getElementById('downloadAll').addEventListener('click', () => {
     if (exportedFiles.length === 0) return;
 
+    const prefix = getExportPrefix();
+    const docUrl = getDocUrl();
+
     exportedFiles.forEach(file => {
-      const content = generateTsContent(file.fileName, file.body);
+      const content = generateTsContent(file.fileName, file.body, file.collectionName, prefix, docUrl);
       downloadFile(file.fileName, content);
     });
   });
