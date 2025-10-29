@@ -1,140 +1,816 @@
 <style>
   :root {
-    --spacing: 0.8rem;
+    /* Espacement & Dimensions */
+    --spacing: 1rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    
+    /* Rayons de bordure */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    
+    /* Ombres */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    
+    /* Largeurs */
+    --sidebar-width: 360px;
+    --header-height: 56px;
+    
+    /* Transitions */
+    --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Couleurs de base */
+    --white: #ffffff;
+    --black: #000000;
+    
+    /* Couleurs primaires */
+    --primary-50: #ECE0FF;
+    --primary-100: #E2D6FF;
+    --primary-200: #D5C3FF;
+    --primary-300: #BE9CFF;
+    --primary-400: #AC78FF;
+    --primary-500: #9747FF;
+    --primary-600: #812CD6;
+    --primary-700: #721DC0;
+    --primary-800: #5C139F;
+    --primary-900: #390B6A;
+    
+    /* Couleurs de succès */
+    --success-50: #D1FAE5;
+    --success-100: #d1fae5;
+    --success-200: #A7F3D0;
+    --success-300: #6EE7B7;
+    --success-400: #34D399;
+    --success-500: #10B981;
+    --success-600: #059669;
+    --success-700: #047857;
+    --success-800: #065F46;
+    --success-900: #022C22;
+    
+    /* Thème clair par défaut */
+    --bg-primary: var(--white);
+    --bg-secondary: #f9fafb;
+    --bg-tertiary: #f3f4f6;
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --text-tertiary: #6b7280;
+    --border-color: #e5e7eb;
+    --hover-bg: rgba(0, 0, 0, 0.03);
+    --card-bg: var(--white);
+    --input-bg: var(--white);
+    --sidebar-bg: #f9fafb;
+    --sidebar-border: #e5e7eb;
+    --code-bg: #f9fafb;
+    --code-color: #111827;
+    --shadow-color: rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Thème sombre */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-tertiary: #334155;
+      --text-primary: #f8fafc;
+      --text-secondary: #cbd5e1;
+      --text-tertiary: #94a3b8;
+      --border-color: #334155;
+      --hover-bg: rgba(255, 255, 255, 0.05);
+      --card-bg: #1e293b;
+      --input-bg: #1e293b;
+      --sidebar-bg: #0f172a;
+      --sidebar-border: #1e293b;
+      --code-bg: #1e293b;
+      --code-color: #f8fafc;
+      --shadow-color: rgba(0, 0, 0, 0.3);
+    }
   }
 
   * {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
   }
 
   body {
-    background-color: var(--figma-color-bg);
-    color: var(--figma-color-text);
     margin: 0;
-    padding: var(--spacing);
-  }
-
-  html,
-  body,
-  main {
-    height: 100%;
+    min-height: 100vh;
+    height: 800px;
+    min-width: 1000px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    display: flex;
+    overflow: hidden;
+    line-height: 1.5;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
   main {
     display: flex;
-    flex-direction: column;
-    gap: var(--spacing);
-  }
-
-  button {
-    appearance: none;
-    border-radius: 4px;
-    padding: var(--spacing);
-  }
-
-  textarea {
-    background-color: var(--figma-color-bg-secondary);
-    border: 2px solid var(--figma-color-border);
-    color: var(--figma-color-text-secondary);
     flex: 1;
-    font-family: Andale Mono, monospace;
-    font-size: 0.9rem;
-    overflow: auto;
-    padding: var(--spacing);
-    white-space: pre;
+    gap: var(--spacing-md);
+    height: 100%;
+    padding: var(--spacing-md);
+    background-color: var(--bg-primary);
+  }
+
+  /* SIDEBAR STYLING */
+  .sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--sidebar-bg);
+    padding: 0;
+    border-right: 1px solid var(--sidebar-border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .sidebar-header {
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    background-color: var(--card-bg);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
   }
   
-  textarea:focus {
-    border-color: var(--figma-color-border-selected);
-    outline: none;
+  .sidebar-header svg {
+    width: 20px;
+    height: 20px;
+    color: var(--primary-500);
   }
 
-  button,
-  textarea {
-    display: block;
+  .sidebar-content {
+    padding: var(--spacing-md) var(--spacing-lg);
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) transparent;
+  }
+  
+  .sidebar-content::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .sidebar-content::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .sidebar-content::-webkit-scrollbar-thumb {
+    background-color: var(--border-color);
+    border-radius: 3px;
+  }
+
+  .options-section {
+    background-color: var(--card-bg);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+  }
+
+  .option-group-title {
+    padding: 16px 8px;
+    font-weight: bold;
+  }
+
+  .option-group label {
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    transition: color 0.2s ease;
+  }
+
+  .radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+
+  /* Radio Buttons */
+  .radio-option {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--text-secondary);
+    background-color: transparent;
+    border: 1px solid transparent;
+    margin: 0;
+    min-height: 40px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .radio-option:hover {
+    background-color: var(--hover-bg);
+  }
+
+  .radio-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .radio-option .radio-control {
+    display: inline-flex
+  ;
+    position: relative;
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    min-height: 20px;
+    border: 2px solid var(--primary-500);
+    border-radius: 50%;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+  }
+
+  .radio-option .radio-control::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40px;
+    height: 40px;
+    background-color: var(--primary-100);
+    border-radius: 50%;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    pointer-events: none;
+  }
+
+  .radio-option .radio-control::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    background-color: white;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+    transition: transform 0.2s ease, opacity 0.1s ease;
+    pointer-events: none;
+  }
+
+  .radio-option input[type="radio"]:checked + .radio-control {
+    background-color: var(--primary-500);
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 1px var(--primary-500);
+  }
+
+  .radio-option input[type="radio"]:checked + .radio-control::before {
+    animation: ripple 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .radio-option input[type="radio"]:checked + .radio-control::after {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+
+  .radio-option input[type="radio"]:focus-visible + .radio-control {
+    outline: 2px solid var(--primary-500);
+    outline-offset: 2px;
+  }
+
+  .radio-option .radio-label {
+    transition: color 0.2s ease;
+    user-select: none;
+    line-height: 1.4;
+    font-weight: 400;
+    color: var(--text-primary);
+  }
+
+  .radio-option input[type="radio"]:checked ~ .radio-label {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  @keyframes ripple {
+    0% {
+      transform: translate(-50%, -50%) scale(0.5);
+      opacity: 0.5;
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 0;
+    }
+  }
+
+  /* BUTTONS */
+  .button-group {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
     width: 100%;
   }
 
   button {
-    background-color: var(--figma-color-bg-brand);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 44px;
     border: none;
-    color: var(--figma-color-text-onbrand);
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-      Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
-      sans-serif;
-    font-weight: bold;
+    border-radius: var(--radius-lg);
+    padding: 0 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+    letter-spacing: -0.01em;
+    box-shadow: var(--shadow-sm);
+    line-height: 1.4;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  button::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  
+  button:hover::after {
+    opacity: 1;
+  }
+
+  button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--primary-200);
+  }
+
+  button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .button-group button {
+    flex: 1;
+    padding: 0 0.5rem;
+    font-weight: 500;
+    font-size: 0.875rem;
   }
 
   #export {
-    background-color: var(--figma-color-bg-component);
+    background-color: var(--primary-600);
+    color: white;
+  }
+
+  #export:hover:not(:disabled) {
+    background-color: var(--primary-700);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
+  }
+  
+  #export:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  #downloadAll {
+    background-color: var(--success-600);
+    color: white;
+  }
+
+  #downloadAll:hover:not(:disabled) {
+    background-color: var(--success-700);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+  }
+  
+  #downloadAll:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  /* MAIN CONTENT */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    min-width: 0;
+    height: 100%;
+    padding: 0;
+    background-color: var(--bg-primary);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+  }
+
+  /* FILE LIST */
+  .preview-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    gap: 0;
+    background: var(--bg-primary);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    box-shadow: var(--shadow-medium);
+    transition: var(--transition);
+  }
+
+  .preview-container:focus-within {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.2);
+  }
+
+  .files-section {
+    margin-top: auto;
+    padding: var(--spacing-md) var(--spacing-md) 0;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .files-section h3 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin: 0 0 var(--spacing-sm) 0;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .files-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    max-height: 200px;
+    overflow-y: auto;
+    margin: 0;
+    padding: var(--spacing-xs) var(--spacing-xs) var(--spacing-xs) 0;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) transparent;
+  }
+
+  .files-list::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .files-list::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .files-list::-webkit-scrollbar-thumb {
+    background-color: var(--border-color);
+    border-radius: 3px;
+  }
+
+  .file-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-sm);
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    transition: all 0.2s ease;
+  }
+
+  .file-item:hover {
+    background-color: var(--hover-bg);
+    border-color: var(--primary-500);
+  }
+
+  .file-name {
+    font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+    font-size: 0.825rem;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+    transition: color 0.2s ease;
+  }
+
+  .download-btn {
+    height: 28px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    border: none;
+    background-color: var(--success-600);
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .download-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .download-btn:hover {
+    background-color: var(--success-700);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+  }
+  
+  .download-btn:active {
+    transform: translateY(0);
+  }
+  
+  .download-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--success-200);
+  }
+
+  /* TEXTAREA */
+  textarea {
+    flex: 1;
+    resize: none;
+    border: none;
+    background-color: var(--code-bg);
+    color: var(--code-color);
+    font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+    font-size: 0.85rem;
+    line-height: 1.7;
+    padding: var(--spacing-md);
+    overflow: auto;
+    white-space: pre;
+    transition: all 0.2s ease;
+    tab-size: 2;
+    outline: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+  }
+  
+  textarea::selection {
+    background-color: var(--primary-100);
+    color: var(--primary-900);
+  }
+
+  textarea:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--primary-200);
+  }
+
+  /* CUSTOM SCROLLBAR */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--border-color);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  ::-webkit-scrollbar-corner {
+    background: transparent;
   }
 </style>
+
+<link href='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap' rel='stylesheet'>
+
 <main>
-  <button id="export" type="button">Export Variables</button>
-  <textarea
-    placeholder="Exported variables will render here..."
-    readonly
-  ></textarea>
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <svg xmlns="http://www.w3.org/2000/svg" height="28" width="28" viewBox="0 0 512 512"><title>512 coins</title><g fill="#8C6EFF" class="nc-icon-wrapper"><path d="M512 80c0 18-14.3 34.6-38.4 48c-29.1 16.1-72.5 27.5-122.3 30.9c-3.7-1.8-7.4-3.5-11.3-5C300.6 137.4 248.2 128 192 128c-8.3 0-16.4 .2-24.5 .6l-1.1-.6C142.3 114.6 128 98 128 80c0-44.2 86-80 192-80S512 35.8 512 80zM160.7 161.1c10.2-.7 20.7-1.1 31.3-1.1c62.2 0 117.4 12.3 152.5 31.4C369.3 204.9 384 221.7 384 240c0 4-.7 7.9-2.1 11.7c-4.6 13.2-17 25.3-35 35.5c0 0 0 0 0 0c-.1 .1-.3 .1-.4 .2l0 0 0 0c-.3 .2-.6 .3-.9 .5c-35 19.4-90.8 32-153.6 32c-59.6 0-112.9-11.3-148.2-29.1c-1.9-.9-3.7-1.9-5.5-2.9C14.3 274.6 0 258 0 240c0-34.8 53.4-64.5 128-75.4c10.5-1.5 21.4-2.7 32.7-3.5zM416 240c0-21.9-10.6-39.9-24.1-53.4c28.3-4.4 54.2-11.4 76.2-20.5c16.3-6.8 31.5-15.2 43.9-25.5V176c0 19.3-16.5 37.1-43.8 50.9c-14.6 7.4-32.4 13.7-52.4 18.5c.1-1.8 .2-3.5 .2-5.3zm-32 96c0 18-14.3 34.6-38.4 48c-1.8 1-3.6 1.9-5.5 2.9C304.9 404.7 251.6 416 192 416c-62.8 0-118.6-12.6-153.6-32C14.3 370.6 0 354 0 336V300.6c12.5 10.3 27.6 18.7 43.9 25.5C83.4 342.6 135.8 352 192 352s108.6-9.4 148.1-25.9c7.8-3.2 15.3-6.9 22.4-10.9c6.1-3.4 11.8-7.2 17.2-11.2c1.5-1.1 2.9-2.3 4.3-3.4V304v5.7V336zm32 0V304 278.1c19-4.2 36.5-9.5 52.1-16c16.3-6.8 31.5-15.2 43.9-25.5V272c0 10.5-5 21-14.9 30.9c-16.3 16.3-45 29.7-81.3 38.4c.1-1.7 .2-3.5 .2-5.3zM192 448c56.2 0 108.6-9.4 148.1-25.9c16.3-6.8 31.5-15.2 43.9-25.5V432c0 44.2-86 80-192 80S0 476.2 0 432V396.6c12.5 10.3 27.6 18.7 43.9 25.5C83.4 438.6 135.8 448 192 448z"></path></g></svg>
+      <span>Export Settings</span>
+    </div>
+    
+    <div class="sidebar-content">
+      <div class="options-section">
+        <div class="option-group">
+          <div class="option-group-title">Mode Selection</div>
+          <div class="radio-group">
+            <label class="radio-option">
+              <input type="radio" id="modeAll" name="modeSelection" value="all" checked>
+              <span class="radio-control"></span>
+              <span class="radio-label">All modes (Light & Dark)</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" id="modeNone" name="modeSelection" value="none">
+              <span class="radio-control"></span>
+              <span class="radio-label">No modes (First mode only)</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" id="modeLight" name="modeSelection" value="light">
+              <span class="radio-control"></span>
+              <span class="radio-label">Light mode only</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" id="modeDark" name="modeSelection" value="dark">
+              <span class="radio-control"></span>
+              <span class="radio-label">Dark mode only</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button id="export" type="button">
+            <svg xmlns="http://www.w3.org/2000/svg" height="20" width="22" viewBox="0 0 576 512"><title>576 wand magic sparkles</title><g fill="#ffffff" class="nc-icon-wrapper"><path d="M234.7 42.7L197 56.8c-3 1.1-5 4-5 7.2s2 6.1 5 7.2l37.7 14.1L248.8 123c1.1 3 4 5 7.2 5s6.1-2 7.2-5l14.1-37.7L315 71.2c3-1.1 5-4 5-7.2s-2-6.1-5-7.2L277.3 42.7 263.2 5c-1.1-3-4-5-7.2-5s-6.1 2-7.2 5L234.7 42.7zM46.1 395.4c-18.7 18.7-18.7 49.1 0 67.9l34.6 34.6c18.7 18.7 49.1 18.7 67.9 0L529.9 116.5c18.7-18.7 18.7-49.1 0-67.9L495.3 14.1c-18.7-18.7-49.1-18.7-67.9 0L46.1 395.4zM484.6 82.6l-105 105-23.3-23.3 105-105 23.3 23.3zM7.5 117.2C3 118.9 0 123.2 0 128s3 9.1 7.5 10.8L64 160l21.2 56.5c1.7 4.5 6 7.5 10.8 7.5s9.1-3 10.8-7.5L128 160l56.5-21.2c4.5-1.7 7.5-6 7.5-10.8s-3-9.1-7.5-10.8L128 96 106.8 39.5C105.1 35 100.8 32 96 32s-9.1 3-10.8 7.5L64 96 7.5 117.2zm352 256c-4.5 1.7-7.5 6-7.5 10.8s3 9.1 7.5 10.8L416 416l21.2 56.5c1.7 4.5 6 7.5 10.8 7.5s9.1-3 10.8-7.5L480 416l56.5-21.2c4.5-1.7 7.5-6 7.5-10.8s-3-9.1-7.5-10.8L480 352l-21.2-56.5c-1.7-4.5-6-7.5-10.8-7.5s-9.1 3-10.8 7.5L416 352l-56.5 21.2z"></path></g></svg>
+            Generate
+          </button>
+          <button id="downloadAll" type="button" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15M7 10L12 15M12 15L17 10M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Download All
+          </button>
+        </div>
+      </div>
+
+      <div class="files-section">
+        <h3>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 17V11M15 11V17M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Generated Files
+        </h3>
+        <div id="filesList" class="files-list" style="display: none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="preview-container">
+      <textarea
+        id="preview"
+        placeholder="Click 'Generate' to preview your design tokens..."
+        spellcheck="false"
+        readonly
+      ></textarea>
+    </div>
+  </div>
 </main>
 <script>
+  let exportedFiles = [];
+
   function needsQuotes(key) {
     return /^[0-9]/.test(key) || /[^a-zA-Z0-9_$]/.test(key);
   }
 
   function formatValue(value, indent = 0) {
     const spaces = '    '.repeat(indent);
-    
+
     if (typeof value === 'string') {
       return `'${value}'`;
     }
-    
+
     if (typeof value === 'number' || typeof value === 'boolean') {
       return String(value);
     }
-    
+
     if (Array.isArray(value)) {
       const items = value.map(v => formatValue(v, indent + 1)).join(',\n' + spaces + '    ');
       return `[\n${spaces}    ${items}\n${spaces}]`;
     }
-    
+
     if (typeof value === 'object' && value !== null) {
       const entries = Object.entries(value);
       if (entries.length === 0) return '{}';
-      
+
       const formatted = entries.map(([k, v]) => {
         const key = needsQuotes(k) ? `'${k}'` : k;
         const val = formatValue(v, indent + 1);
         return `${spaces}    ${key}: ${val}`;
       }).join(',\n');
-      
+
       return `{\n${formatted}\n${spaces}}`;
     }
-    
+
     return String(value);
   }
 
-  window.onmessage = ({ data: { pluginMessage } }) => {
-    if (pluginMessage.type === "EXPORT_RESULT") {
-      document.querySelector("textarea").innerHTML = pluginMessage.files
-        .map(({ fileName, body }) => {
-          const collectionName = fileName.replace('.ts', '');
-          const exportName = `myTheme${collectionName.charAt(0).toUpperCase() + collectionName.slice(1)}`;
-          
-          const formattedBody = formatValue(body, 0);
-          
-          const tsContent = `/**
+  function generateTsContent(fileName, body) {
+    const collectionName = fileName.replace('.ts', '');
+    const exportName = `myTheme${collectionName.charAt(0).toUpperCase() + collectionName.slice(1)}`;
+
+    const formattedBody = formatValue(body, 0);
+
+    return `/**
  * ${collectionName.charAt(0).toUpperCase() + collectionName.slice(1)} tokens used in the theme.
  */
 
 export const ${exportName} = ${formattedBody};`;
-          
-          return `/* ${fileName} */\n\n${tsContent}`;
-        })
-        .join("\n\n\n");
+  }
+
+  function downloadFile(fileName, content) {
+    const blob = new Blob([content], { type: 'text/typescript' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function updateFilesList() {
+    const filesList = document.getElementById('filesList');
+
+    if (exportedFiles.length === 0) {
+      filesList.style.display = 'none';
+      return;
+    }
+
+    filesList.style.display = 'block';
+    filesList.innerHTML = exportedFiles.map((file, index) => `
+      <div class="file-item">
+        <span class="file-name">${file.fileName}</span>
+        <button class="download-btn" onclick="downloadSingleFile(${index})">
+          Download
+        </button>
+      </div>
+    `).join('');
+  }
+
+  window.downloadSingleFile = function(index) {
+    const file = exportedFiles[index];
+    const content = generateTsContent(file.fileName, file.body);
+    downloadFile(file.fileName, content);
+  };
+
+  window.onmessage = ({ data: { pluginMessage } }) => {
+    if (pluginMessage.type === "EXPORT_RESULT") {
+      exportedFiles = pluginMessage.files;
+
+      document.getElementById('preview').value = exportedFiles
+              .map(({ fileName, body }) => {
+                const tsContent = generateTsContent(fileName, body);
+                return `/* ${fileName} */\n\n${tsContent}`;
+              })
+              .join("\n\n\n");
+
+      updateFilesList();
+      document.getElementById('downloadAll').disabled = false;
     }
   };
-  
-  document.getElementById("export").addEventListener("click", () => {
-    parent.postMessage({ pluginMessage: { type: "EXPORT" } }, "*");
+
+  document.getElementById('export').addEventListener('click', () => {
+    const modeSelection = document.querySelector('input[name="modeSelection"]:checked').value;
+
+    parent.postMessage({
+      pluginMessage: {
+        type: "EXPORT",
+        options: {
+          modeSelection
+        }
+      }
+    }, "*");
+  });
+
+  document.getElementById('downloadAll').addEventListener('click', () => {
+    if (exportedFiles.length === 0) return;
+
+    exportedFiles.forEach(file => {
+      const content = generateTsContent(file.fileName, file.body);
+      downloadFile(file.fileName, content);
+    });
   });
 </script>

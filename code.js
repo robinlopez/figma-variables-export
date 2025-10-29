@@ -60,14 +60,14 @@ function isAlias(value) {
 }
 
 function traverseToken({
-  collection,
-  modeId,
-  type,
-  key,
-  object,
-  tokens,
-  aliases,
-}) {
+                         collection,
+                         modeId,
+                         type,
+                         key,
+                         object,
+                         tokens,
+                         aliases,
+                       }) {
   type = type || object.$type;
   if (key.charAt(0) === "$") {
     return;
@@ -75,9 +75,9 @@ function traverseToken({
   if (object.$value !== undefined) {
     if (isAlias(object.$value)) {
       const valueKey = object.$value
-        .trim()
-        .replace(/\./g, "/")
-        .replace(/[\{\}]/g, "");
+          .trim()
+          .replace(/\./g, "/")
+          .replace(/[\{\}]/g, "");
       if (tokens[valueKey]) {
         tokens[key] = createVariable(collection, modeId, key, valueKey, tokens);
       } else {
@@ -89,19 +89,19 @@ function traverseToken({
       }
     } else if (type === "color") {
       tokens[key] = createToken(
-        collection,
-        modeId,
-        "COLOR",
-        key,
-        parseColor(object.$value)
+          collection,
+          modeId,
+          "COLOR",
+          key,
+          parseColor(object.$value)
       );
     } else if (type === "number") {
       tokens[key] = createToken(
-        collection,
-        modeId,
-        "FLOAT",
-        key,
-        object.$value
+          collection,
+          modeId,
+          "FLOAT",
+          key,
+          object.$value
       );
     } else {
       console.log("unsupported type", type, object);
@@ -125,16 +125,16 @@ function traverseToken({
 
 function toCamelCase(str) {
   return str
-    .replace(/[^\w\s-]/g, '')
-    .trim()
-    .split(/[\s-_]+/)
-    .map((word, index) => {
-      if (index === 0) {
-        return word.toLowerCase();
-      }
-      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-    })
-    .join('');
+      .replace(/[^\w\s-]/g, '')
+      .trim()
+      .split(/[\s-_]+/)
+      .map((word, index) => {
+        if (index === 0) {
+          return word.toLowerCase();
+        }
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+      })
+      .join('');
 }
 
 function needsQuotes(key) {
@@ -146,15 +146,15 @@ function formatObjectKey(key) {
   return needsQuotes(camelKey) ? `'${camelKey}'` : camelKey;
 }
 
-async function exportToJSON() {
+async function exportToJSON(options = {}) {
   const collections = await figma.variables.getLocalVariableCollectionsAsync();
   const files = [];
-  
+
   for (const collection of collections) {
-    const file = await processCollectionCustom(collection);
+    const file = await processCollectionCustom(collection, options);
     files.push(file);
   }
-  
+
   figma.ui.postMessage({ type: "EXPORT_RESULT", files });
 }
 
@@ -165,33 +165,55 @@ function pxToRem(pxValue) {
 }
 
 function isFontSizeVariable(pathParts) {
-  return pathParts.some(part => 
-    part.toLowerCase().includes('fontsize') || 
-    part.toLowerCase().includes('font') && part.toLowerCase().includes('size')
+  return pathParts.some(part =>
+      part.toLowerCase().includes('fontsize') ||
+      (part.toLowerCase().includes('font') && part.toLowerCase().includes('size'))
   );
 }
 
-async function processCollectionCustom({ name, modes, variableIds }) {
-  const file = { 
-    fileName: `${toCamelCase(name)}.ts`, 
+function filterModesByOptions(modes, modeSelection) {
+  if (modeSelection === 'none') {
+    return [modes[0]];
+  }
+
+  if (modeSelection === 'light') {
+    const lightMode = modes.find(m => m.name.toLowerCase() === 'light');
+    return lightMode ? [lightMode] : [modes[0]];
+  }
+
+  if (modeSelection === 'dark') {
+    const darkMode = modes.find(m => m.name.toLowerCase() === 'dark');
+    return darkMode ? [darkMode] : [modes[0]];
+  }
+
+  return modes;
+}
+
+async function processCollectionCustom({ name, modes, variableIds }, options = {}) {
+  const { modeSelection = 'all' } = options;
+
+  const filteredModes = filterModesByOptions(modes, modeSelection);
+
+  const file = {
+    fileName: `${toCamelCase(name)}.ts`,
     body: {},
-    modes: modes.map(m => ({ modeId: m.modeId, name: m.name }))
+    modes: filteredModes.map(m => ({ modeId: m.modeId, name: m.name }))
   };
-  
+
   const variablesByMode = {};
-  
-  for (const mode of modes) {
+
+  for (const mode of filteredModes) {
     variablesByMode[mode.modeId] = {};
-    
+
     for (const variableId of variableIds) {
       const variable = await figma.variables.getVariableByIdAsync(variableId);
       const { name: varName, resolvedType, valuesByMode } = variable;
       const value = valuesByMode[mode.modeId];
-      
+
       if (value !== undefined && ["COLOR", "FLOAT", "STRING"].includes(resolvedType)) {
         const pathParts = varName.split("/").map(part => toCamelCase(part));
         let obj = variablesByMode[mode.modeId];
-        
+
         for (let i = 0; i < pathParts.length - 1; i++) {
           const part = pathParts[i];
           if (!obj[part]) {
@@ -199,9 +221,9 @@ async function processCollectionCustom({ name, modes, variableIds }) {
           }
           obj = obj[part];
         }
-        
+
         const lastKey = pathParts[pathParts.length - 1];
-        
+
         if (value.type === "VARIABLE_ALIAS") {
           const referencedVar = await figma.variables.getVariableByIdAsync(value.id);
           const aliasPath = referencedVar.name.split("/").map(part => toCamelCase(part)).join(".");
@@ -218,44 +240,44 @@ async function processCollectionCustom({ name, modes, variableIds }) {
       }
     }
   }
-  
-  if (modes.length > 1) {
-    const structuredBody = organizeByTopLevelGroups(variablesByMode, modes);
+
+  if (filteredModes.length > 1) {
+    const structuredBody = organizeByTopLevelGroups(variablesByMode, filteredModes);
     file.body = structuredBody;
   } else {
-    file.body = variablesByMode[modes[0].modeId];
+    file.body = variablesByMode[filteredModes[0].modeId];
   }
-  
+
   return file;
 }
 
 function organizeByTopLevelGroups(variablesByMode, modes) {
   const result = {};
   const allTopLevelKeys = new Set();
-  
+
   Object.values(variablesByMode).forEach(modeData => {
     Object.keys(modeData).forEach(key => allTopLevelKeys.add(key));
   });
-  
+
   allTopLevelKeys.forEach(topLevelKey => {
     result[topLevelKey] = {};
-    
+
     modes.forEach(mode => {
       const modeName = `mode${mode.name.charAt(0).toUpperCase() + mode.name.slice(1).toLowerCase()}`;
       const modeData = variablesByMode[mode.modeId];
-      
+
       if (modeData && modeData[topLevelKey]) {
         result[topLevelKey][modeName] = modeData[topLevelKey];
       }
     });
   });
-  
+
   return result;
 }
 
 function formatNumberValue(value, varName, pathParts) {
   const varLower = varName.toLowerCase();
-  
+
   if (isFontSizeVariable(pathParts)) {
     if (typeof value === 'number') {
       return pxToRem(value);
@@ -264,28 +286,28 @@ function formatNumberValue(value, varName, pathParts) {
       return pxToRem(value);
     }
   }
-  
-  const needsPixels = varLower.includes('spacing') || 
-                      varLower.includes('size') || 
-                      varLower.includes('width') ||
-                      varLower.includes('radius') ||
-                      varLower.includes('stroke') ||
-                      varLower.includes('units') ||
-                      varLower.includes('gutter') ||
-                      varLower.includes('shadow') ||
-                      varLower.includes('metric');
-  
+
+  const needsPixels = varLower.includes('spacing') ||
+      varLower.includes('size') ||
+      varLower.includes('width') ||
+      varLower.includes('radius') ||
+      varLower.includes('stroke') ||
+      varLower.includes('units') ||
+      varLower.includes('gutter') ||
+      varLower.includes('shadow') ||
+      varLower.includes('metric');
+
   if (needsPixels && !String(value).includes('px') && !String(value).includes('rem') && !String(value).includes('ms')) {
     if (String(value) === '999' || String(value) === '9999') {
       return `${value}px`;
     }
     return `${value}px`;
   }
-  
+
   if (String(value).includes('ms')) {
     return value;
   }
-  
+
   return value;
 }
 
@@ -295,7 +317,7 @@ async function processCollection({ name, modes, variableIds }) {
     const file = { fileName: `${name}.${mode.name}.tokens.json`, body: {} };
     for (const variableId of variableIds) {
       const { name, resolvedType, valuesByMode } =
-        await figma.variables.getVariableByIdAsync(variableId);
+          await figma.variables.getVariableByIdAsync(variableId);
       const value = valuesByMode[mode.modeId];
       if (value !== undefined && ["COLOR", "FLOAT"].includes(resolvedType)) {
         let obj = file.body;
@@ -306,7 +328,7 @@ async function processCollection({ name, modes, variableIds }) {
         obj.$type = resolvedType === "COLOR" ? "color" : "number";
         if (value.type === "VARIABLE_ALIAS") {
           const currentVar = await figma.variables.getVariableByIdAsync(
-            value.id
+              value.id
           );
           obj.$value = `{${currentVar.name.replace(/\//g, ".")}}`;
         } else {
@@ -325,29 +347,29 @@ figma.ui.onmessage = async (e) => {
     const { fileName, body } = e;
     importJSONFile({ fileName, body });
   } else if (e.type === "EXPORT") {
-    await exportToJSON();
+    await exportToJSON(e.options || {});
   }
 };
 
 if (figma.command === "import") {
   figma.showUI(__uiFiles__["import"], {
-    width: 500,
-    height: 500,
-    themeColors: true,
+    width: 1280,
+    height: 800,
+    themeColors: true
   });
 } else if (figma.command === "export") {
   figma.showUI(__uiFiles__["export"], {
-    width: 500,
-    height: 500,
-    themeColors: true,
+    width: 1280,
+    height: 800,
+    themeColors: true
   });
 }
 
 function rgbToHex({ r, g, b, a }) {
   if (a !== 1) {
     return `rgba(${[r, g, b]
-      .map((n) => Math.round(n * 255))
-      .join(", ")}, ${a.toFixed(4)})`;
+        .map((n) => Math.round(n * 255))
+        .join(", ")}, ${a.toFixed(4)})`;
   }
   const toHex = (value) => {
     const hex = Math.round(value * 255).toString(16);
@@ -362,13 +384,13 @@ function parseColor(color) {
   color = color.trim();
   const rgbRegex = /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/;
   const rgbaRegex =
-    /^rgba\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*([\d.]+)\s*\)$/;
+      /^rgba\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*([\d.]+)\s*\)$/;
   const hslRegex = /^hsl\(\s*(\d{1,3})\s*,\s*(\d{1,3})%\s*,\s*(\d{1,3})%\s*\)$/;
   const hslaRegex =
-    /^hsla\(\s*(\d{1,3})\s*,\s*(\d{1,3})%\s*,\s*(\d{1,3})%\s*,\s*([\d.]+)\s*\)$/;
+      /^hsla\(\s*(\d{1,3})\s*,\s*(\d{1,3})%\s*,\s*(\d{1,3})%\s*,\s*([\d.]+)\s*\)$/;
   const hexRegex = /^#([A-Fa-f0-9]{3}){1,2}$/;
   const floatRgbRegex =
-    /^\{\s*r:\s*[\d\.]+,\s*g:\s*[\d\.]+,\s*b:\s*[\d\.]+(,\s*opacity:\s*[\d\.]+)?\s*\}$/;
+      /^\{\s*r:\s*[\d\.]+,\s*g:\s*[\d\.]+,\s*b:\s*[\d\.]+(,\s*opacity:\s*[\d\.]+)?\s*\}$/;
 
   if (rgbRegex.test(color)) {
     const [, r, g, b] = color.match(rgbRegex);
@@ -387,18 +409,18 @@ function parseColor(color) {
   } else if (hslaRegex.test(color)) {
     const [, h, s, l, a] = color.match(hslaRegex);
     return Object.assign(
-      hslToRgbFloat(parseInt(h), parseInt(s) / 100, parseInt(l) / 100),
-      { a: parseFloat(a) }
+        hslToRgbFloat(parseInt(h), parseInt(s) / 100, parseInt(l) / 100),
+        { a: parseFloat(a) }
     );
   } else if (hexRegex.test(color)) {
     const hexValue = color.substring(1);
     const expandedHex =
-      hexValue.length === 3
-        ? hexValue
-            .split("")
-            .map((char) => char + char)
-            .join("")
-        : hexValue;
+        hexValue.length === 3
+            ? hexValue
+                .split("")
+                .map((char) => char + char)
+                .join("")
+            : hexValue;
     return {
       r: parseInt(expandedHex.slice(0, 2), 16) / 255,
       g: parseInt(expandedHex.slice(2, 4), 16) / 255,
