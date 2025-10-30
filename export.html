@@ -2,33 +2,34 @@
   :root {
     /* Espacement & Dimensions */
     --spacing: 1rem;
+    --spacing-xs: 1rem;
     --spacing-sm: 0.5rem;
     --spacing-md: 1rem;
     --spacing-lg: 1.5rem;
     --spacing-xl: 2rem;
-    
+
     /* Rayons de bordure */
     --radius-sm: 4px;
     --radius-md: 8px;
     --radius-lg: 12px;
-    
+
     /* Ombres */
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    
+
     /* Largeurs */
     --sidebar-width: 360px;
     --header-height: 56px;
-    
+
     /* Transitions */
     --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    
+
     /* Couleurs de base */
     --white: #ffffff;
     --black: #000000;
-    
+
     /* Couleurs primaires */
     --primary-50: #ECE0FF;
     --primary-100: #E2D6FF;
@@ -40,7 +41,7 @@
     --primary-700: #721DC0;
     --primary-800: #5C139F;
     --primary-900: #390B6A;
-    
+
     /* Couleurs de succès */
     --success-50: #D1FAE5;
     --success-100: #d1fae5;
@@ -52,7 +53,7 @@
     --success-700: #047857;
     --success-800: #065F46;
     --success-900: #022C22;
-    
+
     /* Thème clair par défaut */
     --bg-primary: var(--white);
     --bg-secondary: #f9fafb;
@@ -70,8 +71,18 @@
     --code-bloc-bg: white;
     --code-color: #111827;
     --shadow-color: rgba(0, 0, 0, 0.05);
+
+    /* Thème clair syntax highlighting */
+    --token-keyword: #7c3aed;
+    --token-string: #047857;
+    --token-number: #d97706;
+    --token-name: #2563eb;
+    --token-property: #1d4ed8;
+    --token-const: #be123c;
+    --token-comment: #6b7280;
+    --token-punctuation: #111827;
   }
-  
+
   /* Thème sombre */
   @media (prefers-color-scheme: dark) {
     :root {
@@ -88,9 +99,19 @@
       --sidebar-bg: #0f172a;
       --sidebar-border: #1e293b;
       --code-bg: #1e293b;
-      --code-bloc-bg: white;
+      --code-bloc-bg: #0f172a;
       --code-color: #f8fafc;
       --shadow-color: rgba(0, 0, 0, 0.3);
+
+      /* Thème sombre syntax highlighting */
+      --token-keyword: #c678dd;
+      --token-string: #98c379;
+      --token-number: #d19a66;
+      --token-name: #61afef;
+      --token-property: #56b6c2;
+      --token-const: #e06c75;
+      --token-comment: #7f848e;
+      --token-punctuation: #abb2bf;
     }
   }
 
@@ -151,7 +172,7 @@
   .sidebar-header-title {
     font-weight: bolder;
   }
-  
+
   .sidebar-header svg {
     width: 20px;
     height: 20px;
@@ -168,15 +189,15 @@
     scrollbar-width: thin;
     scrollbar-color: var(--border-color) transparent;
   }
-  
+
   .sidebar-content::-webkit-scrollbar {
     width: 6px;
   }
-  
+
   .sidebar-content::-webkit-scrollbar-track {
     background: transparent;
   }
-  
+
   .sidebar-content::-webkit-scrollbar-thumb {
     background-color: var(--border-color);
     border-radius: 3px;
@@ -210,7 +231,6 @@
   .radio-group {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-xs);
   }
 
   /* Radio Buttons */
@@ -219,7 +239,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 10px 16px;
+    padding: 4px 16px;
     border-radius: var(--radius-sm);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
@@ -229,7 +249,7 @@
     background-color: transparent;
     border: 1px solid transparent;
     margin: 0;
-    min-height: 40px;
+    min-height: 34px;
     width: 100%;
     box-sizing: border-box;
   }
@@ -360,7 +380,7 @@
     position: relative;
     overflow: hidden;
   }
-  
+
   button::after {
     content: '';
     position: absolute;
@@ -372,7 +392,7 @@
     opacity: 0;
     transition: opacity 0.2s ease;
   }
-  
+
   button:hover::after {
     opacity: 1;
   }
@@ -405,7 +425,7 @@
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
   }
-  
+
   #export:active:not(:disabled) {
     transform: translateY(0);
   }
@@ -420,7 +440,7 @@
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
   }
-  
+
   #downloadAll:active:not(:disabled) {
     transform: translateY(0);
   }
@@ -451,15 +471,15 @@
     border-radius: var(--radius-md);
     overflow: hidden;
     border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
+    border-radius: var(--radius-lg);
     border: 1px solid var(--border-color);
     overflow: hidden;
-    box-shadow: var(--shadow-medium);
+    box-shadow: var(--shadow-md);
     transition: var(--transition);
   }
 
   .preview-container:focus-within {
-    border-color: var(--primary-color);
+    border-color: var( --primary-500);
     box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.2);
   }
 
@@ -548,7 +568,7 @@
     gap: 0.35rem;
     box-shadow: var(--shadow-sm);
   }
-  
+
   .download-btn svg {
     width: 14px;
     height: 14px;
@@ -559,11 +579,11 @@
     transform: translateY(-1px);
     box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
   }
-  
+
   .download-btn:active {
     transform: translateY(0);
   }
-  
+
   .download-btn:focus {
     outline: none;
     box-shadow: 0 0 0 2px var(--success-200);
@@ -589,7 +609,7 @@
     -moz-osx-font-smoothing: grayscale;
     border-radius: 0 0 var(--radius-md) var(--radius-md);
   }
-  
+
   textarea::selection {
     background-color: var(--primary-100);
     color: var(--primary-900);
@@ -614,7 +634,7 @@
   ::-webkit-scrollbar-track {
     background: transparent;
   }
-  
+
   ::-webkit-scrollbar-corner {
     background: transparent;
   }
@@ -947,6 +967,75 @@
     text-align: center;
     max-width: 300px;
   }
+
+  /* === Coloration syntaxique améliorée === */
+  .code-block {
+    background-color: var(--code-bloc-bg);
+    border: 1px solid var(--border-color);
+    border-top: none;
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+    padding: var(--spacing-md);
+    overflow-x: auto;
+    position: relative;
+    color: var(--code-color);
+  }
+
+  .code-block code {
+    font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  .token-comment {
+    color: var(--token-comment);
+    font-style: italic;
+  }
+
+  .token-keyword {
+    color: var(--token-keyword);
+    font-weight: 600;
+  }
+
+  .token-const {
+    color: var(--token-const);
+    font-weight: 500;
+  }
+
+  .token-name {
+    color: var(--token-name);
+  }
+
+  .token-string {
+    color: var(--token-string);
+  }
+
+  .token-number {
+    color: var(--token-number);
+  }
+
+  .token-property {
+    color: var(--token-property);
+  }
+
+  .token-punctuation {
+    color: var(--token-punctuation);
+    opacity: 0.9;
+  }
+
+  .code-block code {
+    display: block;
+    white-space: pre;
+    word-break: normal;
+  }
+
+  .code-block pre {
+    margin: 0;
+    padding: 0;
+  }
+
+  .code-block::-webkit-scrollbar-thumb {
+    background-color: var(--primary-200);
+  }
 </style>
 
 <link href='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap' rel='stylesheet'>
@@ -1004,23 +1093,26 @@
         </div>
       </div>
 
-      <div class="option-group">
-        <div class="option-group-title">Opacity Format</div>
-        <div class="radio-group">
-          <label class="radio-option">
-            <input type="radio" id="opacityRgba" name="opacityFormat" value="rgba">
-            <span class="radio-control"></span>
-            <span class="radio-label">RGBA format (rgba(0, 0, 0, 0.2))</span>
-          </label>
-          <label class="radio-option">
-            <input type="radio" id="opacityHex" name="opacityFormat" value="hex" checked>
-            <span class="radio-control"></span>
-            <span class="radio-label">Hex with opacity (#00000033)</span>
-          </label>
+      <div class="options-section">
+        <div class="option-group">
+          <div class="option-group-title">Opacity Format</div>
+          <div class="radio-group">
+            <label class="radio-option">
+              <input type="radio" id="opacityRgba" name="opacityFormat" value="rgba">
+              <span class="radio-control"></span>
+              <span class="radio-label">RGBA format (rgba(0, 0, 0, 0.2))</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" id="opacityHex" name="opacityFormat" value="hex" checked>
+              <span class="radio-control"></span>
+              <span class="radio-label">Hex with opacity (#00000033)</span>
+            </label>
+          </div>
         </div>
       </div>
 
-      <div class="option-group">
+      <div class="options-section">
+        <div class="option-group">
         <div class="option-group-title">Variable Types</div>
         <div class="radio-group">
           <label class="radio-option">
@@ -1034,6 +1126,7 @@
             <span class="radio-label">Exclude "Boolean" variables</span>
           </label>
         </div>
+      </div>
       </div>
 
       <div class="options-section">
