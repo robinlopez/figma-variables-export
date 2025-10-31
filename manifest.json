@@ -1,6 +1,6 @@
 {
-  "name": "Variables Export Starter",
-  "id": "1225498390710809905",
+  "name": "TokenForge",
+  "id": "1566133735926608173",
   "api": "1.0.0",
   "editorType": ["figma"],
   "permissions": [],
@@ -8,6 +8,6 @@
   "menu": [
     { "command": "export", "name": "Export Variables" }
   ],
-  "ui": { "import": "import.html", "export": "export.html" },
+  "ui": { "export": "export.html" },
   "documentAccess": "dynamic-page"
 }

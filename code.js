@@ -405,13 +405,13 @@ figma.ui.onmessage = async (e) => {
 
 if (figma.command === "import") {
   figma.showUI(__uiFiles__["import"], {
-    width: 1280,
+    width: 1380,
     height: 800,
     themeColors: true
   });
 } else if (figma.command === "export") {
   figma.showUI(__uiFiles__["export"], {
-    width: 1280,
+    width: 1380,
     height: 800,
     themeColors: true
   });
