@@ -150,7 +150,7 @@
     width: var(--sidebar-width);
     background-color: var(--sidebar-bg);
     padding: 0;
-    border-right: 1px solid var(--sidebar-border);
+    border: 1px solid var(--sidebar-border);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -216,7 +216,7 @@
   }
 
   .option-group-title {
-    padding: 8px;
+    padding: 8px 0;
     font-weight: bold;
     font-size: 16px;
   }
@@ -239,7 +239,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 4px 16px;
+    padding: 4px 8px;
     border-radius: var(--radius-sm);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
@@ -485,8 +485,15 @@
 
   .files-section {
     margin-top: auto;
-    padding: var(--spacing-md) var(--spacing-md) 0;
+    padding: var(--spacing-md) 0;
     border-top: 1px solid var(--border-color);
+  }
+
+  .files-section-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-bottom: 16px;
   }
 
   .files-section h3 {
@@ -500,13 +507,13 @@
   }
 
   .files-list {
-    display: flex;
+    display: flex !important;
     flex-direction: column;
-    gap: var(--spacing-xs);
+    gap: 4px;
     max-height: 200px;
     overflow-y: auto;
     margin: 0;
-    padding: var(--spacing-xs) var(--spacing-xs) var(--spacing-xs) 0;
+    padding: 0;
     scrollbar-width: thin;
     scrollbar-color: var(--border-color) transparent;
   }
@@ -1036,6 +1043,33 @@
   .code-block::-webkit-scrollbar-thumb {
     background-color: var(--primary-200);
   }
+
+  /* Select personnalisé */
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-right: 2.5rem;
+  }
+
+  select:focus {
+    outline: none;
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 2px var(--primary-200);
+  }
+
+  select option {
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+    padding: 0.5rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23cbd5e1' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    }
+  }
 </style>
 
 <link href='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap' rel='stylesheet'>
@@ -1131,28 +1165,38 @@
 
       <div class="options-section">
         <div class="option-group">
-          <div class="option-group-title">Mode Selection</div>
-          <div class="radio-group">
-            <label class="radio-option">
-              <input type="radio" id="modeAll" name="modeSelection" value="all" checked>
-              <span class="radio-control"></span>
-              <span class="radio-label">All modes (Light & Dark)</span>
-            </label>
-            <label class="radio-option">
-              <input type="radio" id="modeNone" name="modeSelection" value="none">
-              <span class="radio-control"></span>
-              <span class="radio-label">No modes (First mode only)</span>
-            </label>
-            <label class="radio-option">
-              <input type="radio" id="modeLight" name="modeSelection" value="light">
-              <span class="radio-control"></span>
-              <span class="radio-label">Light mode only</span>
-            </label>
-            <label class="radio-option">
-              <input type="radio" id="modeDark" name="modeSelection" value="dark">
-              <span class="radio-control"></span>
-              <span class="radio-label">Dark mode only</span>
-            </label>
+          <div class="option-group-title">Theme/Mode Selection</div>
+
+          <!-- Sélection pour les Primitives -->
+          <div class="input-group" style="margin-bottom: 1rem;">
+            <label>Primitive Theme Mode</label>
+            <select id="primitiveMode" style="padding: 0.75rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background-color: var(--input-bg); color: var(--text-primary); font-size: 0.875rem; width: 100%; cursor: pointer; transition: all 0.2s ease;">
+              <option value="all">Loading modes...</option>
+            </select>
+            <span class="input-hint" id="primitiveModeHint">Loading available modes from your Figma file...</span>
+          </div>
+
+          <!-- Sélection Light/Dark pour les autres collections -->
+          <div class="input-group">
+            <label>Semantic Color Mode</label>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" id="colorModeAll" name="colorMode" value="all" checked>
+                <span class="radio-control"></span>
+                <span class="radio-label">All color modes (Light & Dark)</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" id="colorModeLight" name="colorMode" value="light">
+                <span class="radio-control"></span>
+                <span class="radio-label">Light mode only</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" id="colorModeDark" name="colorMode" value="dark">
+                <span class="radio-control"></span>
+                <span class="radio-label">Dark mode only</span>
+              </label>
+            </div>
+            <span class="input-hint">Select color modes for Semantic and other collections</span>
           </div>
         </div>
       </div>
@@ -1162,21 +1206,22 @@
           <svg xmlns="http://www.w3.org/2000/svg" height="20" width="22" viewBox="0 0 576 512"><title>576 wand magic sparkles</title><g fill="#ffffff" class="nc-icon-wrapper"><path d="M234.7 42.7L197 56.8c-3 1.1-5 4-5 7.2s2 6.1 5 7.2l37.7 14.1L248.8 123c1.1 3 4 5 7.2 5s6.1-2 7.2-5l14.1-37.7L315 71.2c3-1.1 5-4 5-7.2s-2-6.1-5-7.2L277.3 42.7 263.2 5c-1.1-3-4-5-7.2-5s-6.1 2-7.2 5L234.7 42.7zM46.1 395.4c-18.7 18.7-18.7 49.1 0 67.9l34.6 34.6c18.7 18.7 49.1 18.7 67.9 0L529.9 116.5c18.7-18.7 18.7-49.1 0-67.9L495.3 14.1c-18.7-18.7-49.1-18.7-67.9 0L46.1 395.4zM484.6 82.6l-105 105-23.3-23.3 105-105 23.3 23.3zM7.5 117.2C3 118.9 0 123.2 0 128s3 9.1 7.5 10.8L64 160l21.2 56.5c1.7 4.5 6 7.5 10.8 7.5s9.1-3 10.8-7.5L128 160l56.5-21.2c4.5-1.7 7.5-6 7.5-10.8s-3-9.1-7.5-10.8L128 96 106.8 39.5C105.1 35 100.8 32 96 32s-9.1 3-10.8 7.5L64 96 7.5 117.2zm352 256c-4.5 1.7-7.5 6-7.5 10.8s3 9.1 7.5 10.8L416 416l21.2 56.5c1.7 4.5 6 7.5 10.8 7.5s9.1-3 10.8-7.5L480 416l56.5-21.2c4.5-1.7 7.5-6 7.5-10.8s-3-9.1-7.5-10.8L480 352l-21.2-56.5c-1.7-4.5-6-7.5-10.8-7.5s-9.1 3-10.8 7.5L416 352l-56.5 21.2z"></path></g></svg>
           Generate
         </button>
-        <button id="downloadAll" type="button" disabled>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15M7 10L12 15M12 15L17 10M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          Download All
-        </button>
       </div>
 
       <div class="files-section">
-        <h3>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M9 17V11M15 11V17M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          Generated Files
-        </h3>
+        <div class="files-section-header">
+          <h3 style="margin: 0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 512 512"><title>512 code download</title><g fill="#8C6EFF" class="nc-icon-wrapper"><path fill="none" stroke="#8C6EFF" stroke-linecap="round" stroke-linejoin="round" stroke-width="42" d="M160 368L32 256l128-112"></path><path fill="none" stroke="#8C6EFF" stroke-linecap="round" stroke-linejoin="round" stroke-width="42" d="M352 368l128-112-128-112"></path><path fill="none" stroke="#8C6EFF" stroke-linecap="round" stroke-linejoin="round" stroke-width="42" d="M192 288.1l64 63.9 64-63.9"></path><path fill="none" stroke="#8C6EFF" stroke-linecap="round" stroke-linejoin="round" stroke-width="42" d="M256 160v176.03"></path></g></svg>
+            Generated Files
+          </h3>
+          <button id="downloadAll" type="button" disabled class="download-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15M7 10L12 15M12 15L17 10M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Download All
+          </button>
+        </div>
+
         <div id="filesList" class="files-list" style="display: none;"></div>
       </div>
     </div>
@@ -1215,6 +1260,7 @@
 </main>
 <script>
   let exportedFiles = [];
+  let collectionsInfo = {};
 
   function needsQuotes(key) {
     return /^[0-9]/.test(key) || /[^a-zA-Z0-9_$]/.test(key);
@@ -1341,7 +1387,8 @@
   }
 
   document.getElementById('export').addEventListener('click', () => {
-    const modeSelection = document.querySelector('input[name="modeSelection"]:checked').value;
+    const primitiveMode = document.getElementById('primitiveMode').value;
+    const colorMode = document.querySelector('input[name="colorMode"]:checked').value;
     const stringSelection = document.querySelector('input[name="stringSelection"]:checked').value;
     const opacityFormat = document.querySelector('input[name="opacityFormat"]:checked').value;
     const collectionAliases = getCollectionAliases();
@@ -1350,7 +1397,8 @@
       pluginMessage: {
         type: "EXPORT",
         options: {
-          modeSelection,
+          primitiveMode,
+          colorMode,
           excludeString: stringSelection === 'exclude',
           collectionAliases: collectionAliases,
           opacityFormat: opacityFormat
@@ -1530,12 +1578,64 @@
     }
   });
 
+  function updatePrimitiveModeOptions(collectionsInfo) {
+    const select = document.getElementById('primitiveMode');
+    const hint = document.getElementById('primitiveModeHint');
+
+    // Sauvegarder la valeur actuellement sélectionnée
+    const currentValue = select.value;
+
+    // Trouver les collections primitives
+    const primitiveCollections = Object.entries(collectionsInfo).filter(([name, info]) => info.isPrimitive);
+
+    if (primitiveCollections.length === 0) {
+      select.innerHTML = '<option value="all">No Primitive collections found</option>';
+      select.disabled = true;
+      hint.textContent = 'No Primitive collections detected in your Figma file';
+      hint.style.color = 'var(--text-tertiary)';
+      return;
+    }
+
+    // Réactiver le select
+    select.disabled = false;
+
+    // Construire les options à partir des modes de la première collection primitive
+    const [collectionName, collectionData] = primitiveCollections[0];
+    const modes = collectionData.modes;
+
+    select.innerHTML = '<option value="all">All modes</option>';
+
+    modes.forEach((mode, index) => {
+      const option = document.createElement('option');
+      option.value = mode.modeId;
+      option.textContent = `${mode.name} only`;
+      select.appendChild(option);
+    });
+
+    // Restaurer la sélection précédente si elle existe toujours
+    if (currentValue && Array.from(select.options).some(opt => opt.value === currentValue)) {
+      select.value = currentValue;
+    }
+
+    hint.textContent = `Select mode for "${collectionName}" (${modes.length} mode${modes.length > 1 ? 's' : ''} available)`;
+    hint.style.color = 'var(--text-secondary)';
+  }
+
   // Modifier le onmessage existant
   window.onmessage = ({ data: { pluginMessage } }) => {
-    if (pluginMessage.type === "EXPORT_RESULT") {
+    if (pluginMessage.type === "COLLECTIONS_INFO") {
+      // Nouveau : gérer le chargement initial des modes
+      collectionsInfo = pluginMessage.collectionsInfo || {};
+      updatePrimitiveModeOptions(collectionsInfo);
+    } else if (pluginMessage.type === "EXPORT_RESULT") {
       exportedFiles = pluginMessage.files;
+      collectionsInfo = pluginMessage.collectionsInfo || {};
+
       const prefix = getExportPrefix();
       const docUrl = getDocUrl();
+
+      // Mettre à jour les options du select primitive mode (au cas où)
+      updatePrimitiveModeOptions(collectionsInfo);
 
       // Générer la preview avec HTML
       const previewContent = document.getElementById('previewContent');

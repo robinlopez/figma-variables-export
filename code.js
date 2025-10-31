@@ -149,13 +149,34 @@ function formatObjectKey(key) {
 async function exportToJSON(options = {}) {
   const collections = await figma.variables.getLocalVariableCollectionsAsync();
   const files = [];
+  const collectionsInfo = {}; // Nouveau : info sur les collections
 
   for (const collection of collections) {
     const file = await processCollectionCustom(collection, options);
     files.push(file);
+
+    // Nouveau : stocker les modes disponibles
+    collectionsInfo[collection.name] = {
+      modes: collection.modes.map(m => ({ modeId: m.modeId, name: m.name })),
+      isPrimitive: collection.name.toLowerCase().includes('primitive')
+    };
   }
 
-  figma.ui.postMessage({ type: "EXPORT_RESULT", files });
+  figma.ui.postMessage({ type: "EXPORT_RESULT", files, collectionsInfo });
+}
+
+async function getCollectionsInfo() {
+  const collections = await figma.variables.getLocalVariableCollectionsAsync();
+  const collectionsInfo = {};
+
+  for (const collection of collections) {
+    collectionsInfo[collection.name] = {
+      modes: collection.modes.map(m => ({ modeId: m.modeId, name: m.name })),
+      isPrimitive: collection.name.toLowerCase().includes('primitive')
+    };
+  }
+
+  figma.ui.postMessage({ type: "COLLECTIONS_INFO", collectionsInfo });
 }
 
 function pxToRem(pxValue) {
@@ -171,28 +192,45 @@ function isFontSizeVariable(pathParts) {
   );
 }
 
-function filterModesByOptions(modes, modeSelection) {
-  if (modeSelection === 'none') {
-    return [modes[0]];
-  }
+function filterModesByOptions(modes, modeSelection, collectionName) {
+  const isPrimitiveCollection = collectionName.toLowerCase().includes('primitive');
 
-  if (modeSelection === 'light') {
-    const lightMode = modes.find(m => m.name.toLowerCase() === 'light');
-    return lightMode ? [lightMode] : [modes[0]];
-  }
+  if (isPrimitiveCollection) {
+    if (modeSelection === 'all') {
+      return modes;
+    }
 
-  if (modeSelection === 'dark') {
-    const darkMode = modes.find(m => m.name.toLowerCase() === 'dark');
-    return darkMode ? [darkMode] : [modes[0]];
+    // Chercher le mode par son modeId
+    const selectedMode = modes.find(m => m.modeId === modeSelection);
+    return selectedMode ? [selectedMode] : [modes[0]];
+  } else {
+    // Pour les autres collections (Semantic, etc.), utiliser colorMode
+    if (modeSelection === 'all') {
+      return modes;
+    }
+
+    if (modeSelection === 'light') {
+      const lightMode = modes.find(m => m.name.toLowerCase() === 'light');
+      return lightMode ? [lightMode] : [modes[0]];
+    }
+
+    if (modeSelection === 'dark') {
+      const darkMode = modes.find(m => m.name.toLowerCase() === 'dark');
+      return darkMode ? [darkMode] : [modes[0]];
+    }
   }
 
   return modes;
 }
 
 async function processCollectionCustom({ name, modes, variableIds }, options = {}) {
-  const { modeSelection = 'all', excludeString = false, collectionAliases = {}, opacityFormat = 'rgba' } = options;
+  const { primitiveMode = 'first', colorMode = 'all', excludeString = false, collectionAliases = {}, opacityFormat = 'rgba' } = options;
 
-  const filteredModes = filterModesByOptions(modes, modeSelection);
+  // Utiliser primitiveMode pour les primitives, colorMode pour les autres
+  const isPrimitiveCollection = name.toLowerCase().includes('primitive');
+  const modeSelection = isPrimitiveCollection ? primitiveMode : colorMode;
+
+  const filteredModes = filterModesByOptions(modes, modeSelection, name);
 
   const file = {
     fileName: `${toCamelCase(name)}.ts`,
@@ -360,6 +398,8 @@ figma.ui.onmessage = async (e) => {
     importJSONFile({ fileName, body });
   } else if (e.type === "EXPORT") {
     await exportToJSON(e.options || {});
+  } else if (e.type === "GET_COLLECTIONS_INFO") {
+    await getCollectionsInfo();
   }
 };
 
@@ -375,6 +415,8 @@ if (figma.command === "import") {
     height: 800,
     themeColors: true
   });
+  // Nouveau : charger les infos des collections dès l'ouverture
+  getCollectionsInfo();
 }
 
 function rgbToHex({ r, g, b, a }, opacityFormat = 'rgba') {
