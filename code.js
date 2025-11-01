@@ -149,13 +149,21 @@ function formatObjectKey(key) {
 async function exportToJSON(options = {}) {
   const collections = await figma.variables.getLocalVariableCollectionsAsync();
   const files = [];
-  const collectionsInfo = {}; // Nouveau : info sur les collections
+  const collectionsInfo = {};
+
+  const { exportFormat = 'ts' } = options;
+  const extensions = {
+    ts: '.ts',
+    json: '.json',
+    css: '.css',
+    scss: '.scss'
+  };
 
   for (const collection of collections) {
     const file = await processCollectionCustom(collection, options);
+    file.fileName = file.fileName.replace('.ts', extensions[exportFormat]);
     files.push(file);
 
-    // Nouveau : stocker les modes disponibles
     collectionsInfo[collection.name] = {
       modes: collection.modes.map(m => ({ modeId: m.modeId, name: m.name })),
       isPrimitive: collection.name.toLowerCase().includes('primitive')

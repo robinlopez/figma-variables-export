@@ -1096,6 +1096,20 @@
       <div class="options-section">
         <div class="option-group">
           <div class="input-group">
+            <div class="option-group-title">Export Format</div>
+            <select id="exportFormat" style="padding: 0.75rem; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background-color: var(--input-bg); color: var(--text-primary); font-size: 0.875rem; width: 100%; cursor: pointer; transition: all 0.2s ease;">
+              <option value="ts">JavaScript / TypeScript</option>
+              <option value="json">JSON</option>
+              <option value="css">CSS Variables</option>
+              <option value="scss">SCSS Variables</option>
+            </select>
+            <span class="input-hint">Select the output format for your design tokens</span>
+          </div>
+        </div>
+      </div>
+      <div class="options-section">
+        <div class="option-group">
+          <div class="input-group">
             <div class="option-group-title">Export Prefix</div>
             <input
                     type="text"
@@ -1323,15 +1337,110 @@
     return comment;
   }
 
+  function generateFileContent(fileName, body, collectionName, format, prefix = 'myTheme', docUrl = '') {
+    switch(format) {
+      case 'json':
+        return generateJsonContent(body, collectionName, docUrl);
+      case 'css':
+        return generateCssContent(fileName, body, collectionName, docUrl);
+      case 'scss':
+        return generateScssContent(fileName, body, collectionName, docUrl);
+      case 'ts':
+      default:
+        return generateTsContent(fileName, body, collectionName, prefix, docUrl);
+    }
+  }
+
   function generateTsContent(fileName, body, collectionName, prefix = 'myTheme', docUrl = '') {
     const collectionNameCamel = fileName.replace('.ts', '');
     const exportName = `${prefix}${collectionNameCamel.charAt(0).toUpperCase() + collectionNameCamel.slice(1)}`;
-
     const formattedBody = formatValue(body, 0);
-
     const fileComment = generateFileComment(collectionName, docUrl);
-
     return `${fileComment}\n\nexport const ${exportName} = ${formattedBody};`;
+  }
+
+  function generateJsonContent(body, collectionName, docUrl) {
+    const result = {
+      $metadata: {
+        collection: collectionName
+      }
+    };
+
+    if (docUrl && docUrl.trim()) {
+      result.$metadata.documentation = docUrl.trim();
+    }
+
+    return JSON.stringify({ ...result, ...body }, null, 2);
+  }
+
+  function generateCssContent(fileName, body, collectionName, docUrl) {
+    const fileComment = generateFileComment(collectionName, docUrl);
+    let css = `${fileComment}\n\n:root {\n`;
+
+    const flattenObject = (obj, prefix = '') => {
+      let result = '';
+      for (const [key, value] of Object.entries(obj)) {
+        const cssKey = `--${prefix}${prefix ? '-' : ''}${camelToKebab(key)}`;
+
+        if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+          result += flattenObject(value, `${prefix}${prefix ? '-' : ''}${camelToKebab(key)}`);
+        } else {
+          let cssValue = value;
+
+          // Gérer les alias {collection.path}
+          if (typeof value === 'string' && value.startsWith('{') && value.endsWith('}')) {
+            const aliasPath = value.slice(1, -1);
+            const varName = aliasPath.split('.').map(camelToKebab).join('-');
+            cssValue = `var(--${varName})`;
+          }
+
+          result += `  ${cssKey}: ${cssValue};\n`;
+        }
+      }
+      return result;
+    };
+
+    css += flattenObject(body);
+    css += '}';
+
+    return css;
+  }
+
+  function generateScssContent(fileName, body, collectionName, docUrl) {
+    const fileComment = generateFileComment(collectionName, docUrl);
+    let scss = `${fileComment}\n\n`;
+
+    const flattenObject = (obj, prefix = '') => {
+      let result = '';
+      for (const [key, value] of Object.entries(obj)) {
+        const scssKey = `$${prefix}${prefix ? '-' : ''}${camelToKebab(key)}`;
+
+        if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+          result += flattenObject(value, `${prefix}${prefix ? '-' : ''}${camelToKebab(key)}`);
+        } else {
+          let scssValue = value;
+
+          // Gérer les alias {collection.path}
+          if (typeof value === 'string' && value.startsWith('{') && value.endsWith('}')) {
+            const aliasPath = value.slice(1, -1);
+            const varName = aliasPath.split('.').map(camelToKebab).join('-');
+            scssValue = `$${varName}`;
+          }
+
+          result += `${scssKey}: ${scssValue};\n`;
+        }
+      }
+      return result;
+    };
+
+    scss += flattenObject(body);
+
+    return scss;
+  }
+
+  // Fonction helper pour convertir camelCase en kebab-case
+  function camelToKebab(str) {
+    return str.replace(/([A-Z])/g, '-$1').toLowerCase();
   }
 
   function getExportPrefix() {
@@ -1344,8 +1453,15 @@
     return input.value.trim();
   }
 
-  function downloadFile(fileName, content) {
-    const blob = new Blob([content], { type: 'text/typescript' });
+  function downloadFile(fileName, content, format) {
+    const mimeTypes = {
+      ts: 'text/typescript',
+      json: 'application/json',
+      css: 'text/css',
+      scss: 'text/x-scss'
+    };
+
+    const blob = new Blob([content], { type: mimeTypes[format] || 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -1379,8 +1495,9 @@
     const file = exportedFiles[index];
     const prefix = getExportPrefix();
     const docUrl = getDocUrl();
-    const content = generateTsContent(file.fileName, file.body, file.collectionName, prefix, docUrl);
-    downloadFile(file.fileName, content);
+    const format = document.getElementById('exportFormat').value;
+    const content = generateFileContent(file.fileName, file.body, file.collectionName, format, prefix, docUrl);
+    downloadFile(file.fileName, content, format);
   };
 
   function getCollectionAliases() {
@@ -1402,6 +1519,7 @@
     const colorMode = document.querySelector('input[name="colorMode"]:checked').value;
     const stringSelection = document.querySelector('input[name="stringSelection"]:checked').value;
     const opacityFormat = document.querySelector('input[name="opacityFormat"]:checked').value;
+    const exportFormat = document.getElementById('exportFormat').value;
     const collectionAliases = getCollectionAliases();
 
     parent.postMessage({
@@ -1412,7 +1530,8 @@
           colorMode,
           excludeString: stringSelection === 'exclude',
           collectionAliases: collectionAliases,
-          opacityFormat: opacityFormat
+          opacityFormat: opacityFormat,
+          exportFormat: exportFormat
         }
       }
     }, "*");
@@ -1423,10 +1542,11 @@
 
     const prefix = getExportPrefix();
     const docUrl = getDocUrl();
+    const format = document.getElementById('exportFormat').value;
 
     exportedFiles.forEach(file => {
-      const content = generateTsContent(file.fileName, file.body, file.collectionName, prefix, docUrl);
-      downloadFile(file.fileName, content);
+      const content = generateFileContent(file.fileName, file.body, file.collectionName, format, prefix, docUrl);
+      downloadFile(file.fileName, content, format);
     });
   });
 
@@ -1439,11 +1559,16 @@
 
   // Fonction de coloration syntaxique simple pour TypeScript
   function highlightTypeScript(code) {
+    // Commentaires
+    code = code.replace(/(\/\*[\s\S]*?\*\/|\/\/.*$)/gm, '$1');
+
+    // Mots-clés
+    code = code.replace(/\b(export|const|let|var|function|return|if|else|for|while|import|from)\b/g, '$1');
 
     // Strings
     code = code.replace(/('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*")/g, '<span class="token-string">$1</span>');
 
-    // Numbers
+    // Numbers (avec unités)
     code = code.replace(/\b(\d+(?:\.\d+)?(?:px|rem|ms)?)\b/g, '<span class="token-number">$1</span>');
 
     // Properties (keys dans les objets)
@@ -1452,14 +1577,67 @@
     return code;
   }
 
+  function highlightCss(code) {
+    // Commentaires
+    code = code.replace(/(\/\*[\s\S]*?\*\/)/g, '$1');
+
+    // Sélecteurs et propriétés CSS
+    code = code.replace(/(:root|\$[\w-]+|--[\w-]+)(\s*\{|\s*:)/g, '$1 $2');
+
+    // Valeurs var() et $variables
+    code = code.replace(/(var\(--[\w-]+\)|\$[\w-]+(?!\s*:))/g, '$1');
+
+    // Strings
+    code = code.replace(/('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*")/g, '<span class="token-string">$1</span>');
+
+    // Numbers (avec unités)
+    code = code.replace(/\b(\d+(?:\.\d+)?(?:px|rem|em|%|ms|s|deg)?)\b/g, '<span class="token-number">$1</span>');
+
+    // Couleurs hex
+    code = code.replace(/(#[0-9a-fA-F]{3,8})/g, '<span class="token-string">$1</span>');
+
+    // rgba/rgb
+    code = code.replace(/(rgba?)\(/g, '<span class="token-keyword">$1</span>(');
+
+    return code;
+  }
+
+  // Fonction de coloration syntaxique pour JSON
+  function highlightJson(code) {
+    // Strings (clés et valeurs)
+    code = code.replace(/("(?:[^"\\]|\\.)*")(\s*:)?/g, (match, str, colon) => {
+      if (colon) {
+        return `<span class="token-property">${str}</span>${colon}`;
+      }
+      return `<span class="token-string">${str}</span>`;
+    });
+
+    // Numbers
+    code = code.replace(/:\s*(-?\d+(?:\.\d+)?(?:px|rem|ms)?)/g, ': <span class="token-number">$1</span>');
+
+    // Booleans et null
+    code = code.replace(/\b(true|false|null)\b/g, '<span class="token-keyword">$1</span>');
+
+    return code;
+  }
+
   // Fonction pour générer le HTML de la preview
-  function generatePreviewHTML(files, prefix, docUrl) {
+  function generatePreviewHTML(files, prefix, docUrl, format) {
     let html = '';
 
     files.forEach((file, index) => {
-      const tsContent = generateTsContent(file.fileName, file.body, file.collectionName, prefix, docUrl);
+      const content = generateFileContent(file.fileName, file.body, file.collectionName, format, prefix, docUrl);
       const fileId = `file-${index}`;
-      const highlightedCode = highlightTypeScript(escapeHtml(tsContent));
+
+      // Adapter la coloration syntaxique selon le format
+      let highlightedCode;
+      if (format === 'css' || format === 'scss') {
+        highlightedCode = highlightCss(escapeHtml(content));
+      } else if (format === 'json') {
+        highlightedCode = highlightJson(escapeHtml(content));
+      } else {
+        highlightedCode = highlightTypeScript(escapeHtml(content));
+      }
 
       html += `
       <div class="file-block" id="${fileId}">
@@ -1511,7 +1689,6 @@
 
   // Fonction pour copier le contenu d'un fichier
   window.copyFileContent = function(fileId, button) {
-    // Extraire l'index du fichier depuis l'ID
     const fileIndex = parseInt(fileId.replace('file-', ''));
     const file = exportedFiles[fileIndex];
 
@@ -1520,43 +1697,37 @@
       return;
     }
 
-    // Générer le contenu TypeScript original
     const prefix = getExportPrefix();
     const docUrl = getDocUrl();
-    const content = generateTsContent(file.fileName, file.body, file.collectionName, prefix, docUrl);
+    const format = document.getElementById('exportFormat').value;
+    const content = generateFileContent(file.fileName, file.body, file.collectionName, format, prefix, docUrl);
 
-    // Créer un élément textarea temporaire
     const textarea = document.createElement('textarea');
     textarea.value = content;
-    textarea.style.position = 'fixed';  // Pour éviter le défilement
+    textarea.style.position = 'fixed';
     document.body.appendChild(textarea);
     textarea.select();
 
     try {
-      // Essayer d'utiliser l'API Clipboard moderne
       const successful = document.execCommand('copy');
       if (successful) {
-        // Mettre à jour le bouton pour indiquer que la copie a réussi
         const originalHTML = button.innerHTML;
         button.innerHTML = `
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
-          Copied!
-        `;
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        Copied!
+      `;
         button.classList.add('copied');
 
         setTimeout(() => {
           button.innerHTML = originalHTML;
           button.classList.remove('copied');
         }, 2000);
-      } else {
-        console.error('Failed to copy text');
       }
     } catch (err) {
       console.error('Error copying text:', err);
     } finally {
-      // Nettoyer
       document.body.removeChild(textarea);
     }
   };
@@ -1635,7 +1806,6 @@
   // Modifier le onmessage existant
   window.onmessage = ({ data: { pluginMessage } }) => {
     if (pluginMessage.type === "COLLECTIONS_INFO") {
-      // Nouveau : gérer le chargement initial des modes
       collectionsInfo = pluginMessage.collectionsInfo || {};
       updatePrimitiveModeOptions(collectionsInfo);
     } else if (pluginMessage.type === "EXPORT_RESULT") {
@@ -1644,19 +1814,16 @@
 
       const prefix = getExportPrefix();
       const docUrl = getDocUrl();
+      const format = document.getElementById('exportFormat').value;
 
-      // Mettre à jour les options du select primitive mode (au cas où)
       updatePrimitiveModeOptions(collectionsInfo);
 
-      // Générer la preview avec HTML
       const previewContent = document.getElementById('previewContent');
-      previewContent.innerHTML = generatePreviewHTML(exportedFiles, prefix, docUrl);
+      previewContent.innerHTML = generatePreviewHTML(exportedFiles, prefix, docUrl, format);
 
-      // Générer la navigation
       const navDropdown = document.getElementById('navDropdown');
       navDropdown.innerHTML = generateNavigation(exportedFiles);
 
-      // Afficher le bouton de navigation
       document.getElementById('navContainer').style.display = 'block';
 
       updateFilesList();
